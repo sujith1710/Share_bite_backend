@@ -18,15 +18,20 @@ const impactRoutes = require('./routes/impactRoutes');
 const app = express();
 
 // Middleware
-// In production, set CORS_ORIGIN env var to your Vercel frontend URL, e.g.:
-//   CORS_ORIGIN=https://sharebite.vercel.app
+// CORS_ORIGIN env var can be a comma-separated list of allowed origins
+const allowedOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',').map(o => o.trim())
+  : ['https://share-bite-frontend.vercel.app', 'http://localhost:8081', 'http://127.0.0.1:8081'];
+
 const corsOptions = {
-  origin: process.env.CORS_ORIGIN
-    ? process.env.CORS_ORIGIN.split(',').map(o => o.trim())
-    : '*',
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, curl, Render health checks)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error(`CORS: origin ${origin} not allowed`));
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,
 };
 app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
