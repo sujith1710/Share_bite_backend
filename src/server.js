@@ -18,21 +18,31 @@ const impactRoutes = require('./routes/impactRoutes');
 const app = express();
 
 // Middleware
-// Manual CORS — works reliably for preflight (OPTIONS) and regular requests
-const allowedOrigins = process.env.CORS_ORIGIN
-  ? process.env.CORS_ORIGIN.split(',').map(o => o.trim())
-  : ['https://share-bite-frontend.vercel.app', 'http://localhost:8081', 'http://127.0.0.1:8081'];
-
+// Robust CORS — handles all Vercel preview URLs + localhost
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  if (!origin || allowedOrigins.includes(origin)) {
+
+  // Allow: explicit list, any *.vercel.app subdomain, localhost variants
+  const allowedOrigins = process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(',').map(o => o.trim())
+    : ['https://share-bite-frontend.vercel.app'];
+
+  const isAllowed =
+    !origin ||
+    allowedOrigins.includes(origin) ||
+    /^https:\/\/.*\.vercel\.app$/.test(origin) ||
+    /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+
+  if (isAllowed) {
     res.setHeader('Access-Control-Allow-Origin', origin || '*');
   }
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  // Respond immediately to preflight requests
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+
+  // Always respond immediately to preflight requests
   if (req.method === 'OPTIONS') {
-    return res.sendStatus(204);
+    return res.status(204).end();
   }
   next();
 });
