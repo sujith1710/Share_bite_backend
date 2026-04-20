@@ -8,7 +8,7 @@ require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 const mongoose = require('mongoose');
 const Admin = require('./models/Admin');
 
-const ADMIN_EMAIL = 'admin@FeedHope.com';
+const ADMIN_EMAIL = 'admin@ShareBite.com';
 const ADMIN_PASSWORD = 'Admin@1234';
 const ADMIN_NAME = 'Super Admin';
 

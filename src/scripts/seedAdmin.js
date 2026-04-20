@@ -8,9 +8,9 @@ require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 const mongoose = require('mongoose');
 const Admin = require('../models/Admin');
 
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@FeedHope.com';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@ShareBite.com';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Admin@12345';
-const ADMIN_NAME = 'FeedHope Admin';
+const ADMIN_NAME = 'ShareBite Admin';
 
 async function seed() {
   try {
