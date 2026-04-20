@@ -24,17 +24,9 @@ exports.createListing = async (req, res) => {
       city
     } = req.body;
 
-    if (
-      latitude === undefined ||
-      longitude === undefined ||
-      isNaN(parseFloat(latitude)) ||
-      isNaN(parseFloat(longitude)) ||
-      !city
-    ) {
-      return res.status(400).json({
-        message: 'Valid latitude, longitude, and city are required'
-      });
-    }
+    const finalLatitude = latitude !== undefined && !isNaN(parseFloat(latitude)) ? parseFloat(latitude) : 0;
+    const finalLongitude = longitude !== undefined && !isNaN(parseFloat(longitude)) ? parseFloat(longitude) : 0;
+    const finalCity = city || 'Other';
 
     const listing = await FoodListing.create({
       foodType,
@@ -52,8 +44,8 @@ exports.createListing = async (req, res) => {
 
       location: {
         type: 'Point',
-        coordinates: [parseFloat(longitude), parseFloat(latitude)],
-        city: city || 'Unknown'
+        coordinates: [finalLongitude, finalLatitude],
+        city: finalCity
       }
     });
 
