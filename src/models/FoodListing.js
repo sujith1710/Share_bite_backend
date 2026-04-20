@@ -47,7 +47,7 @@ const foodListingSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['available', 'reserved', 'completed'],
+      enum: ['available', 'pending', 'reserved', 'completed'],
       default: 'available',
     },
 

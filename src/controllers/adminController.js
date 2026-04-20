@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const Admin = require('../models/Admin');
 const User = require('../models/User');
 const Ngo = require('../models/Ngo');
+const FoodListing = require('../models/FoodListing');
 
 const generateAdminToken = (id) =>
   jwt.sign({ id, role: 'admin' }, process.env.JWT_SECRET, { expiresIn: '7d' });
@@ -123,6 +124,65 @@ exports.deleteUser = async (req, res) => {
     res.json({ message: `${type.toUpperCase()} deleted successfully` });
   } catch (err) {
     console.error('deleteUser error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// --- Food Listing Approval Logic ---
+
+// GET /api/admin/listings/pending
+exports.getPendingFoodListings = async (req, res) => {
+  try {
+    const listings = await FoodListing.find({ status: 'pending' })
+      .populate('donorId', 'name email phone')
+      .populate('claimedBy', 'name email phone')
+      .sort({ updatedAt: -1 });
+    res.json(listings);
+  } catch (err) {
+    console.error('getPendingFoodListings error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// PATCH /api/admin/listings/approve/:id
+exports.approveFoodListing = async (req, res) => {
+  try {
+    const listing = await FoodListing.findById(req.params.id);
+    if (!listing) return res.status(404).json({ message: 'Listing not found' });
+
+    listing.status = 'reserved';
+    await listing.save();
+
+    // Auto-delete after 24 hours (or 20 seconds for testing if you want to see it work)
+    setTimeout(async () => {
+      try {
+        await FoodListing.findByIdAndDelete(listing._id);
+        console.log(`Listing ${listing._id} auto-deleted after approval.`);
+      } catch (err) {
+        console.error(`Error auto-deleting listing ${listing._id}:`, err);
+      }
+    }, 24 * 60 * 60 * 1000); 
+
+    res.json({ message: 'Claim request approved!', record: listing });
+  } catch (err) {
+    console.error('approveFoodListing error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// PATCH /api/admin/listings/reject/:id
+exports.rejectFoodListing = async (req, res) => {
+  try {
+    const listing = await FoodListing.findById(req.params.id);
+    if (!listing) return res.status(404).json({ message: 'Listing not found' });
+
+    listing.status = 'available';
+    listing.claimedBy = null;
+    await listing.save();
+
+    res.json({ message: 'Claim request rejected. Listing is back to available.', record: listing });
+  } catch (err) {
+    console.error('rejectFoodListing error:', err);
     res.status(500).json({ message: 'Server error' });
   }
 };

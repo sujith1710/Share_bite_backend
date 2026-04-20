@@ -222,23 +222,12 @@ exports.claimListing = async (req, res) => {
       return res.status(400).json({ message: 'This item has already been reserved' });
     }
 
-    // Mark as Reserved
-    listing.status = 'reserved';
+    // Mark as pending for admin approval
+    listing.status = 'pending';
     listing.claimedBy = req.user._id;
     const savedListing = await listing.save();
 
-    // Currently set to 10 seconds. For 24 hours use: 24 * 60 * 60 * 1000
-    setTimeout(async () => {
-      try {
-        await FoodListing.findByIdAndDelete(savedListing._id);
-        // It is good practice to keep one log for background tasks
-        console.log(`Listing ${savedListing._id} auto-deleted successfully.`);
-      } catch (err) {
-        console.error(`Error auto-deleting listing ${savedListing._id}:`, err);
-      }
-    }, 20000);
-
-    res.json({ message: 'Food reserved successfully', listing: savedListing });
+    res.json({ message: 'Request sent! Waiting for admin approval.', listing: savedListing });
 
   } catch (err) {
     console.error('Claim listing error:', err);

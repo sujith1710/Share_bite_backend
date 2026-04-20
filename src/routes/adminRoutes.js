@@ -20,4 +20,15 @@ router.patch('/approve/:type/:id', protectAdmin, approveUser);
 router.patch('/reject/:type/:id', protectAdmin, rejectUser);
 router.delete('/delete/:type/:id', protectAdmin, deleteUser);
 
+// Food Listing Management
+const {
+  getPendingFoodListings,
+  approveFoodListing,
+  rejectFoodListing,
+} = require('../controllers/adminController');
+
+router.get('/listings/pending', protectAdmin, getPendingFoodListings);
+router.patch('/listings/approve/:id', protectAdmin, approveFoodListing);
+router.patch('/listings/reject/:id', protectAdmin, rejectFoodListing);
+
 module.exports = router;
