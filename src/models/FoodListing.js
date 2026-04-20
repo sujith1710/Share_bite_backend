@@ -18,7 +18,7 @@ const foodListingSchema = new mongoose.Schema(
       default: true
     },
 
-    pickupTime: { type: String, required: true },
+    pickupTime: { type: String, required: false },
     pickupLocation: { type: String, required: true, trim: true },
     // 📍 Map-based location
 
