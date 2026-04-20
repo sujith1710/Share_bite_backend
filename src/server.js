@@ -11,6 +11,7 @@ const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const ngoAuthRoutes = require('./routes/ngoAuthRoutes');
 const foodListingRoutes = require('./routes/foodListingRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 require('./jobs/expiryScheduler');
 const impactRoutes = require('./routes/impactRoutes');
 
@@ -36,7 +37,7 @@ app.use((req, res, next) => {
   if (isAllowed) {
     res.setHeader('Access-Control-Allow-Origin', origin || '*');
   }
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   res.setHeader('Access-Control-Allow-Credentials', 'true');
 
@@ -89,6 +90,7 @@ app.use('/api/ngo', ngoAuthRoutes);
 app.use('/api/food', foodListingRoutes);
 app.use('/api/impact', impactRoutes);
 app.use('/api/claims', claimRoutes);
+app.use('/api/admin', adminRoutes);
 
 
 const PORT = process.env.PORT || 5000;

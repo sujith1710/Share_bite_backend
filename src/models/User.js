@@ -25,6 +25,11 @@ const userSchema = new mongoose.Schema(
       enum: ['donor', 'collector'],
       required: true,
     },
+    status: {
+      type: String,
+      enum: ['pending', 'approved', 'rejected'],
+      default: 'pending',
+    },
   },
   { timestamps: true }
 );
